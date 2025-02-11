@@ -22,8 +22,8 @@ class LogJsonHandler(APIHandler):
     def post(self):
         response_body = self.get_json_body()
         json_loads = json.loads(response_body)
-        data = {"Username": "{}".format(json_loads["Username"])}
-        self.finish(json.dumps(data))
+        print("response: " + response_body)
+        self.finish(json.dumps(json_loads))
 
 def setup_handlers(web_app):
     host_pattern = ".*$"
