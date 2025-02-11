@@ -11,8 +11,10 @@ import { requestAPI } from './handler'
  */
 
 const JsonCodeBlock: React.FC = () => {
-  const [jsonInput, setJsonInput] = useState<string>('{\n  "example": "Type your JSON here!"\n}');
+  const [jsonInput, setJsonInput] = useState<string>('{\n  "Username": "gsraws"\n}');
   const [error, setError] = useState<string | null>(null);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
+  const [isError, setIsError] = useState<boolean>(false);
 
   // Handle input change and JSON validation
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -29,11 +31,7 @@ const JsonCodeBlock: React.FC = () => {
   };
 
   const handleSaveClick = () => {
-    console.log("buttonClicked")
-    
     const jsonData = jsonInput
-    console.log(jsonData)
-    console.log(JSON.stringify(jsonData))
     
     requestAPI<any>('json', {
       body: JSON.stringify(jsonData),
@@ -41,11 +39,15 @@ const JsonCodeBlock: React.FC = () => {
     })
     .then(reply => {
       console.log(reply);
+      setIsError(false)
+      setFeedbackMessage("✅ Successfully saved data!")
     })
     .catch(reason => {
+      setIsError(true)
       console.error(
-        `Error on POST /jupyterlab-json-context/json ${jsonData}.\n${reason}`
+        `Error on POST /jupyterlab-json-context/json ${jsonData}.\n${reason}`,
       );
+      setFeedbackMessage(`❌ Error: ${reason.message}`);
     });
   }
 
@@ -58,6 +60,11 @@ const JsonCodeBlock: React.FC = () => {
         placeholder='Type JSON here...'
       />
       {error && <p style={styles.errorText}>{error}</p>}
+
+      {/* Feedback message (success or error) */}
+      {feedbackMessage && (
+        <p style={isError ? styles.errorText : styles.successText}>{feedbackMessage}</p>
+      )}
 
       <div style={styles.buttonContainer}>
         <button onClick={handleSaveClick} style={styles.saveButton}>
@@ -131,5 +138,9 @@ const styles = {
   },
   saveButtonHover: {
     backgroundColor: '#0056b3',
+  },
+  successText: {
+    color: 'green',
+    fontSize: '14px',
   }
 };
