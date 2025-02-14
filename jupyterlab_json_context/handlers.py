@@ -7,6 +7,9 @@ import tornado
 from tornado.web import StaticFileHandler
 
 
+# simple in memory storage
+CONTEXT_STORE = []
+
 class RouteHandler(APIHandler):
     # The following decorator should be present on all verb methods (head, get, post,
     # patch, put, delete, options) to ensure only authorized user can request the
@@ -19,10 +22,16 @@ class RouteHandler(APIHandler):
 
 class LogJsonHandler(APIHandler):
     @tornado.web.authenticated
+    def get(self):
+        """Retrieve stored context"""
+        self.write(json.dumps(CONTEXT_STORE))
+
+    @tornado.web.authenticated
     def post(self):
         response_body = self.get_json_body()
         json_loads = json.loads(response_body)
-        print("response: " + response_body)
+        print(response_body)
+        CONTEXT_STORE.append(json_loads)
         self.finish(json.dumps(json_loads))
 
 def setup_handlers(web_app):
